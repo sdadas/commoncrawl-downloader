@@ -37,10 +37,10 @@ public class CCWorker implements Callable<Void> {
     @Override
     public Void call() throws Exception {
         String name = StringUtils.substringAfterLast(path, "/");
-        File englishDir = new File(outputDir, "en");
-        File englishFile = new File(englishDir, FilenameUtils.removeExtension(name) + ".txt");
-        if(englishFile.exists()) {
-            LOG.warn("File {} already exists, skipping processing", englishFile.getName());
+        File markerDir = new File(outputDir, "markers");
+        File markerFile = new File(markerDir, FilenameUtils.removeExtension(name) + ".txt");
+        if(markerFile.exists()) {
+            LOG.warn("File {} already exists, skipping processing", markerFile.getName());
             return null;
         }
         LOG.info("Startring part {}", path);
@@ -48,6 +48,8 @@ public class CCWorker implements Callable<Void> {
         String result = downloader.call();
         CCWetReader reader = new CCWetReader(new File(result), outputDir, counter, ld);
         reader.call();
+        markerDir.mkdirs();
+        markerFile.createNewFile();
         LOG.info("Finished part {}", path);
         return null;
     }
