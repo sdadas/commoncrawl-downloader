@@ -100,6 +100,18 @@
             <artifactId>fastText4j</artifactId>
             <version>1.2.3</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.ibm.icu</groupId>
+            <artifactId>icu4j</artifactId>
+            <version>64.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>cz.jirutka.unidecode</groupId>
+            <artifactId>unidecode</artifactId>
+            <version>1.0.1</version>
+        </dependency>
     </dependencies>
 
 </project>

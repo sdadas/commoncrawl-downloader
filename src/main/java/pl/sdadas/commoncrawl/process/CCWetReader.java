@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import pl.sdadas.commoncrawl.tools.FastTextLangDetector;
 
 import java.io.*;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -21,12 +20,6 @@ import java.util.zip.GZIPInputStream;
 public class CCWetReader implements Callable<String> {
 
     private final static Logger LOG = LoggerFactory.getLogger(CCWetReader.class);
-
-    private final static String TARGET_URI = "WARC-Target-URI";
-
-    private final static String CONTENT_TYPE = "Content-Type";
-
-    private final static String CONTENT_LENGTH = "Content-Length";
 
     private final File file;
 
@@ -54,6 +47,7 @@ public class CCWetReader implements Callable<String> {
             return englishFile.getAbsolutePath();
         }
 
+        WetDocumentCleaner cleaner = new WetDocumentCleaner();
         Map<String, File> files;
         try(BufferedReader reader = createReader(); MultiLangWriter writer = new MultiLangWriter(destDir, tempFileName)) {
             LineIterator iter = IOUtils.lineIterator(reader);
@@ -65,9 +59,11 @@ public class CCWetReader implements Callable<String> {
                 CCWetDocumentReader documentReader = new CCWetDocumentReader(iter);
                 while(documentReader.hasNext()) {
                     WetDocument doc = documentReader.next();
-                    String text = doc.builder.toString();
+                    String text = doc.getBuilder().toString();
                     String lang = ld.predict(text);
-                    String uri = doc.meta.get(TARGET_URI);
+                    doc.setLang(lang);
+                    text = cleaner.apply(doc);
+                    String uri = doc.getMeta().get(WetDocument.TARGET_URI);
                     if(StringUtils.isNotBlank(uri) && StringUtils.isNotBlank(lang) && !counter.aboveThreshold(lang)) {
                         //writer.println("__URL: " + uri);
                         counter.add(lang, text.length());
@@ -119,28 +115,15 @@ public class CCWetReader implements Callable<String> {
                     meta = false;
                 } else if(meta) {
                     String[] split = StringUtils.split(line, ":", 2);
-                    result.meta.put(split[0], StringUtils.strip(split[1]));
+                    result.getMeta().put(split[0], StringUtils.strip(split[1]));
                 } else {
                     if(StringUtils.length(line) > 50) {
-                        result.builder.append(line).append('\n');
+                        result.getBuilder().append(line).append('\n');
                     }
                 }
             }
             return result;
         }
     }
-
-    private class WetDocument {
-
-        private Map<String, String> meta;
-
-        private StringBuilder builder;
-
-        public WetDocument() {
-            this.meta = new HashMap<>();
-            this.builder = new StringBuilder();
-        }
-    }
-
 
 }

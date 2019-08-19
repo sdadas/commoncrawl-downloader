@@ -6,6 +6,7 @@
     </appender>
 
     <logger name="org.springframework" level="warn"/>
+    <logger name="cz.jirutka.unidecode" level="warn"/>
 
     <root level="info">
         <appender-ref ref="console"/>
