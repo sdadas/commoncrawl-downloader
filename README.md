@@ -1,6 +1,7 @@
 ### Common Crawl Downloader
 A simple application for downloading multilingual text corpora from Common Crawl. 
 It works by extracting texts from CC WET files, cleaning them and splitting into language specific directories.
+It uses FastText model ([https://fasttext.cc/blog/2017/10/02/blog-post.html](https://fasttext.cc/blog/2017/10/02/blog-post.html)) for language identification.
 
 ### Usage
 
