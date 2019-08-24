@@ -22,7 +22,7 @@ public class Params implements Serializable {
     private String languages;
 
     @Parameter(names = {"-t", "-threads"}, description = "Number of worker threads")
-    private Integer threads = Runtime.getRuntime().availableProcessors();
+    private Integer threads = 1;
 
     @Parameter(names = {"-limit", "-limit-bytes"}, description = "Maximum number of bytes for a single language corpus")
     private Long sizeLimit = -1L;

@@ -5,7 +5,13 @@ It uses FastText model ([https://fasttext.cc/blog/2017/10/02/blog-post.html](htt
 
 ### Usage
 
-`java -jar commoncrawl-downloader.jar [directory containing wet.paths file] [number of threads] [max size of language specific directory in bytes]`
+```
+java -jar commoncrawl-downloader.jar 
+  [directory containing wet.paths file] 
+  -threads [optionally: number of threads, by default equal to 1] 
+  -limit [optionally: max size of language specific directory in bytes, unconstrained by default] 
+  -languages [optionally: comma separated list of languages, all languages by default]
+```
 
-For example, to download up to 10GB of text in each language: \
-`java -jar commoncrawl-downloader.jar /home/user/commoncrawl/ 8 10073741824`
+For example, to download up to 10GB of text in Polish and English: \
+`java -jar commoncrawl-downloader.jar /home/user/commoncrawl/ -t 8 -limit 10073741824 -languages pl,en`
