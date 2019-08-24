@@ -4,6 +4,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import pl.sdadas.commoncrawl.Params;
 import pl.sdadas.commoncrawl.tools.FastTextLangDetector;
 
 import java.io.File;
@@ -16,37 +17,34 @@ public class CCWorker implements Callable<Void> {
 
     private final static Logger LOG = LoggerFactory.getLogger(CCWorker.class);
 
-    private String path;
+    private final String path;
 
-    private File tempDir;
+    private final MultiLangCounter counter;
 
-    private File outputDir;
+    private final FastTextLangDetector ld;
 
-    private MultiLangCounter counter;
+    private final Params params;
 
-    private FastTextLangDetector ld;
-
-    public CCWorker(String path, File tempDir, File outputDir, MultiLangCounter counter, FastTextLangDetector ld) {
+    public CCWorker(String path, Params params, MultiLangCounter counter, FastTextLangDetector ld) {
         this.path = path;
-        this.tempDir = tempDir;
-        this.outputDir = outputDir;
         this.counter = counter;
         this.ld = ld;
+        this.params = params;
     }
 
     @Override
     public Void call() throws Exception {
         String name = StringUtils.substringAfterLast(path, "/");
-        File markerDir = new File(outputDir, "markers");
+        File markerDir = new File(params.getFilteredDir(), "markers");
         File markerFile = new File(markerDir, FilenameUtils.removeExtension(name) + ".txt");
         if(markerFile.exists()) {
             LOG.warn("File {} already exists, skipping processing", markerFile.getName());
             return null;
         }
         LOG.info("Startring part {}", path);
-        CCDownloader downloader = new CCDownloader(path, tempDir);
+        CCDownloader downloader = new CCDownloader(path, params.getTempDir());
         String result = downloader.call();
-        CCWetReader reader = new CCWetReader(new File(result), outputDir, counter, ld);
+        CCWetReader reader = new CCWetReader(new File(result), params, counter, ld);
         reader.call();
         markerDir.mkdirs();
         markerFile.createNewFile();

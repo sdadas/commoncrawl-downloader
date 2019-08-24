@@ -45,7 +45,7 @@ public class MultiLangCounter {
 
     public boolean aboveThreshold(String lang) {
         long val = count(lang).get();
-        return val > limit;
+        return limit >= 0 && val > limit;
     }
 
     private synchronized AtomicLong count(String lang) {

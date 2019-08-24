@@ -6,6 +6,7 @@ import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import pl.sdadas.commoncrawl.Params;
 import pl.sdadas.commoncrawl.tools.FastTextLangDetector;
 
 import java.io.*;
@@ -29,11 +30,14 @@ public class CCWetReader implements Callable<String> {
 
     private final FastTextLangDetector ld;
 
-    public CCWetReader(File file, File destDir, MultiLangCounter counter, FastTextLangDetector ld) {
+    private final Params params;
+
+    public CCWetReader(File file, Params params, MultiLangCounter counter, FastTextLangDetector ld) {
         this.file = file;
-        this.destDir = destDir;
+        this.destDir = params.getFilteredDir();
         this.counter = counter;
         this.ld = ld;
+        this.params = params;
     }
 
     @Override
@@ -62,6 +66,9 @@ public class CCWetReader implements Callable<String> {
                     String text = doc.getBuilder().toString();
                     String lang = ld.predict(text);
                     doc.setLang(lang);
+                    if(!params.getLanguages().isEmpty() && !params.getLanguages().contains(lang)) {
+                        continue;
+                    }
                     text = cleaner.apply(doc);
                     String uri = doc.getMeta().get(WetDocument.TARGET_URI);
                     if(StringUtils.isNotBlank(uri) && StringUtils.isNotBlank(lang) && !counter.aboveThreshold(lang)) {
